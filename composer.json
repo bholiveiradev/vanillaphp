@@ -1,0 +1,32 @@
+{
+    "name": "boliveiradev/mvcapp",
+    "description": "Simple PHP MVC Framework",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bruno Oliveira",
+            "email": "bholiveira.web@gmail.com"
+        }
+    ],
+    "require": {
+        "filp/whoops": "^2.15",
+        "predis/predis": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app"
+        },
+        "files": [
+            "helpers/helpers.php"
+        ]
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.4",
+        "phpunit/phpunit": "^10.5",
+        "mockery/mockery": "^1.6"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    }
+}

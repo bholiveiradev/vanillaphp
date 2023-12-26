@@ -1,0 +1,62 @@
+version: "3.1"
+services:
+  app:
+    build: ./docker/php
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www/html/
+      - ./docker/php/php-override.ini:/usr/local/etc/php/conf.d/php-override.ini
+    links:
+      - db
+    networks:
+      - vanillaphp
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: forgedb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - ./docker/dump:/docker-entrypoint-initdb.d
+      - ./docker/data/mysql:/var/lib/mysql
+    networks:
+      - vanillaphp
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    environment:
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - vanillaphp
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning
+    volumes: 
+      - ./docker/data/cache:/data
+    networks:
+      - vanillaphp
+
+networks:
+  vanillaphp:
+    driver: bridge
+
+volumes:
+  persistent:
