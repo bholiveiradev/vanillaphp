@@ -11,13 +11,19 @@ class Product extends ActiveRecord
 {
     use Cache;
 
-    protected string $table = 'products';
-    protected array $attributes = ['name', 'price', 'stock'];
-
-    public function __construct(array $fields = [])
+    public function __construct(
+        array $fields = [],
+        protected string $table = 'products',
+        protected array $attributes = ['name', 'price', 'stock']
+    )
     {
         $this->cacheInit();
-        parent::__construct($fields);
+        
+        parent::__construct(
+            table: $table,
+            fields: $fields,
+            attributes: $attributes
+        );
     }
 
     public function onInsert()

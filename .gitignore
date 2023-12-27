@@ -3,6 +3,8 @@
 .env
 /vendor
 /docker/data/mysql/*
+/docker/data/cache/*
 /coverage
 composer.lock
 *.cache
+!.gitkeep

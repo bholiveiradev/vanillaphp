@@ -12,19 +12,19 @@ use App\UseCases\ProductUseCase;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(): void
     {
         $products = (new ProductUseCase())->all();
 
         view('products/index', ['products' => $products]);
     }
 
-    public function create()
+    public function create(): void
     {
         view('products/create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         $product = new Product();
         $product->fill($request->getAll());
@@ -35,30 +35,32 @@ class ProductController extends Controller
         redirect('/products');
     }
 
-    public function show(Request $request)
+    public function show(Request $request): void
     {
         $product = (new Product())->find($request->id);
 
         view('products/show', ['product' => $product]);
     }
 
-    public function edit(Request $request)
+    public function edit(Request $request): void
     {
         $product = (new Product())->find($request->id);
 
         view('products/edit', ['product' => $product]);
     }
 
-    public function update(Request $request)
+    public function update(Request $request): void
     {
         $product = (new Product())->find($request->id);
         $product->fill($request->getAll());
         $product->update();
 
+        Session::flash('success', 'O produto foi salvo!');
+
         redirect('/products');
     }
 
-    public function delete(Request $request)
+    public function delete(Request $request): void
     {
         $product = (new Product())->find($request->id);
         $product->delete();

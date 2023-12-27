@@ -24,12 +24,15 @@
       <a href="/products/create" class="btn btn-success">
         Novo produto
       </a>
+
       <?php if (has_flash('success')): ?>
-      <div class="alert alert-success" role="alert">
-        <h4 class="alert-heading">Tudo certo!</h4>
+      <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+        <h4 class="alert-heading">Tudo certo 👍</h4>
         <?= flash('success') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
       <?php endif ?>
+
       <div class="table-responsive">
         <table class="table">
           <thead>
@@ -44,17 +47,11 @@
             <?php if(!empty($products)): ?>
               <?php foreach ($products as $product): ?>
               <tr>
-                <td>
-                  <?= $product->id ?>
-                </td>
-                <td>
-                  <?= $product->name ?>
-                </td>
-                <td>
-                  <?= $product->price ?>
-                </td>
+                <td><?= $product->id ?></td>
+                <td><?= $product->name ?></td>
+                <td><?= $product->price ?></td>
                 <td class="d-flex">
-                <a class="btn btn-sm btn-primary mx-1"
+                  <a class="btn btn-sm btn-primary mx-1"
                     href="<?= APP_URL . '/products/' . $product->id ?>">Visualizar</a>
                   <a class="btn btn-sm btn-warning mx-1"
                     href="<?= APP_URL . '/products/' . $product->id . '/edit' ?>">Editar</a>

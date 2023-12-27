@@ -6,14 +6,14 @@ namespace App\Database;
 
 class ActiveRecord
 {
-    protected string $table;
-    protected string $primaryKey = 'id';
-    protected array  $attributes = [];
-    private array    $fields = [];
-
-    public function __construct(array $fields = [])
+    
+    public function __construct(
+        protected string $table,
+        protected string $primaryKey = 'id',
+        protected array  $attributes = [],
+        private   array  $fields = [],
+    )
     {
-        $this->fields = $fields;
     }
 
     public function __get(string $name): mixed
