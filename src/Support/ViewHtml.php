@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Support;
 
-use App\Http\Response;
+use App\Core\Http\Response;
 use App\Support\Contracts\ViewInterface;
 
 class ViewHtml implements ViewInterface
 {
-    public function processRender(string $view, array $data = []): void
+    public static function processRender(string $view, array $data = []): void
     {
         $path = VIEW_PATH . '/' . $view . '.php';
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             throw new \Exception("View not implemented: {$path}");
         }
 
@@ -25,6 +25,6 @@ class ViewHtml implements ViewInterface
         
         $result = ob_get_clean();
 
-        (new Response())->send($result);
+        Response::html($result);
     }
 }

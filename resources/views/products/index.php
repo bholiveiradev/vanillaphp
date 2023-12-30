@@ -33,45 +33,49 @@
       </div>
       <?php endif ?>
 
-      <div class="table-responsive">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Preço</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if(!empty($products)): ?>
-              <?php foreach ($products as $product): ?>
-              <tr>
-                <td><?= $product->id ?></td>
-                <td><?= $product->name ?></td>
-                <td><?= $product->price ?></td>
-                <td class="d-flex">
-                  <a class="btn btn-sm btn-primary mx-1"
-                    href="<?= APP_URL . '/products/' . $product->id ?>">Visualizar</a>
-                  <a class="btn btn-sm btn-warning mx-1"
-                    href="<?= APP_URL . '/products/' . $product->id . '/edit' ?>">Editar</a>
-                  <form action="<?= APP_URL . '/products/' . $product->id ?>" method="POST">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-sm btn-danger mx-1"
-                      onclick="return confirm('Deseja realmente remover?')">Remover</button>
-                  </form>
-                </td>
-              </tr>
-              <?php endforeach ?>
-            <?php else: ?>
-              <tr>
-                <td colspan="4">
-                  Nenhum produto cadastrado
-                </td>
-              </tr>
-            <?php endif ?>
-          </tbody>
-        </table>
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Preço</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php if(!empty($products)): ?>
+                  <?php foreach ($products as $product): ?>
+                  <tr>
+                    <td><?= $product->id ?></td>
+                    <td><?= $product->name ?></td>
+                    <td><?= $product->price ?></td>
+                    <td class="d-flex">
+                      <a class="btn btn-sm btn-primary mx-1"
+                        href="<?= APP_URL . '/products/' . $product->id ?>">Visualizar</a>
+                      <a class="btn btn-sm btn-warning mx-1"
+                        href="<?= APP_URL . '/products/' . $product->id . '/edit' ?>">Editar</a>
+                      <form action="<?= APP_URL . '/products/' . $product->id ?>" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-sm btn-danger mx-1"
+                          onclick="return confirm('Deseja realmente remover?')">Remover</button>
+                      </form>
+                    </td>
+                  </tr>
+                  <?php endforeach ?>
+                <?php else: ?>
+                  <tr>
+                    <td colspan="4">
+                      Nenhum produto cadastrado
+                    </td>
+                  </tr>
+                <?php endif ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
   </main>

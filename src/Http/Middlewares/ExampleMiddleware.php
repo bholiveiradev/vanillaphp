@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Middlewares;
+namespace App\Http\Middlewares;
 
-use App\Middlewares\Contracts\MiddlewareInterface;
-use App\Http\Request;
-use App\Http\Response;
+use App\Core\Http\Request;
+use App\Core\Http\Response;
+use App\Http\Middlewares\Contracts\MiddlewareInterface;
 use \Closure;
 
 class ExampleMiddleware implements MiddlewareInterface

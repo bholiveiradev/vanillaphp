@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Database\ActiveRecord;
+use App\Core\DB\Model;
 use App\Traits\Cache;
 
-class Product extends ActiveRecord
+class Product extends Model
 {
     use Cache;
 
@@ -17,13 +17,9 @@ class Product extends ActiveRecord
         protected array $attributes = ['name', 'price', 'stock']
     )
     {
-        $this->cacheInit();
+        parent::__construct(table: $table, fields: $fields, attributes: $attributes);
         
-        parent::__construct(
-            table: $table,
-            fields: $fields,
-            attributes: $attributes
-        );
+        $this->cacheInit();
     }
 
     public function onInsert()

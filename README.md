@@ -6,29 +6,7 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 
 ## Estrutura do Projeto 🏗️
 ```plaintext
-Copy code
 /
-|-- app/
-|   |-- Controllers/
-|   |   |-- Controller.php
-|   |-- Database/
-|   |   |-- ActiveRecord.php
-|   |   |-- DB.php
-|   |   |-- QueryBuilder.php
-|   |-- Http/
-|   |   |-- Request.php
-|   |   |-- Response.php
-|   |   |-- RouteDesptacher.php
-|   |   |-- Router.php
-|   |-- Middlewares/
-|   |   |-- Contracts/
-|   |-- Models/
-|   |-- Support/
-|   |   |-- Contracts/
-|   |-- Traits/
-|   |   |-- Cache.php
-|   |   |-- View.php
-|   |-- UseCases/
 |-- config/
 |   |-- app.php
 |-- docker/
@@ -40,8 +18,37 @@ Copy code
 |   |-- php/
 |   |   |-- Dockerfile
 |   |   |-- php-override.ini
-|-- helpers/
-|   |-- helpers.php
+|-- src/
+|   |-- Core/
+|   |   |-- DB/
+|   |   |   |-- Builder.php
+|   |   |   |-- DB.php
+|   |   |   |-- Model.php
+|   |   |-- Http/
+|   |   |   |-- Request.php
+|   |   |   |-- Response.php
+|   |   |   |-- RouteDesptacher.php
+|   |   |   |-- Router.php
+|   |   |-- Bootstrap.php
+|   |-- Http/
+|   |   |-- Controllers/
+|   |   |   |-- Controller.php
+|   |   |-- Middlewares/
+|   |   |   |-- Contracts/
+|   |-- Helpers/
+|   |   |-- Helpers.php
+|   |-- Models/
+|   |-- Services/
+|   |-- Support/
+|   |   |-- Contracts/
+|   |   |   |-- CacheInterface.php
+|   |   |   |-- ViewInterface.php
+|   |   |-- CacheRedis.php
+|   |   |-- Session.php
+|   |   |-- ViewHtml.php
+|   |-- Traits/
+|   |   |-- Cache.php
+|   |   |-- View.php
 |-- public/
 |   |-- assets/
 |   |-- .htaccess
@@ -92,7 +99,7 @@ define('DB_PASS',    'password');
 define('DB_CHARSET', 'utf8');
 ```
 
-### Exemplo de Modelo (app/models/Product.php)
+### Exemplo de Modelo (src/Models/Product.php)
 ```php
 <?php
 
@@ -100,20 +107,22 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Database\ActiveRecord;
+use App\Core\DB\Model;
 use App\Traits\Cache;
 
-class Product extends ActiveRecord
+class Product extends Model
 {
     use Cache;
 
-    protected string $table = 'products';
-    protected array $attributes = ['name', 'price', 'stock'];
-
-    public function __construct(array $fields = [])
+    public function __construct(
+        array $fields = [],
+        protected string $table = 'products',
+        protected array $attributes = ['name', 'price', 'stock']
+    )
     {
+        parent::__construct(table: $table, fields: $fields, attributes: $attributes);
+        
         $this->cacheInit();
-        parent::__construct($fields);
     }
 
     public function onInsert()
@@ -138,30 +147,35 @@ class Product extends ActiveRecord
     }
 }
 ```
-### Exemplo de Controlador (app/controllers/ProductController.php)
+### Exemplo de Controlador (src/Http/Controllers/ProductController.php)
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Http\Controllers;
 
-use App\Controllers\Controller;
-use App\Http\Request;
+use App\Core\Http\Request;
 use App\Models\Product;
 use App\Support\Session;
-use App\UseCases\ProductUseCase;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(): void
     {
-        $products = (new ProductUseCase())->all();
-        // Exemplo de retorno de view
-        return view('products/index', ['products' => $products]);
+        $service = new ProductService;
+        $products = $service->all();
+
+        view('products/index', ['products' => $products]);
     }
 
-    public function store(Request $request)
+    public function create(): void
+    {
+        view('products/create');
+    }
+
+    public function store(Request $request): void
     {
         $product = new Product();
         $product->fill($request->getAll());
@@ -169,41 +183,54 @@ class ProductController extends Controller
 
         Session::flash('success', 'O produto foi criado!');
 
-        // Exemplo de redirecionamento após uma operação
-        return redirect('/admin/products');
+        redirect('/products');
     }
 
-    public function show(Request $request)
+    public function show(Request $request): void
     {
         $product = (new Product())->find($request->id);
 
-        // Exemplo de retorno de view
-        return view('products/show', ['product' => $product]);
+        view('products/show', ['product' => $product]);
     }
 
-    public function delete(Request $request)
+    public function edit(Request $request): void
+    {
+        $product = (new Product())->find($request->id);
+
+        view('products/edit', ['product' => $product]);
+    }
+
+    public function update(Request $request): void
+    {
+        $product = (new Product())->find($request->id);
+        $product->fill($request->getAll());
+        $product->update();
+
+        Session::flash('success', 'O produto foi salvo!');
+
+        redirect('/products');
+    }
+
+    public function delete(Request $request): void
     {
         $product = (new Product())->find($request->id);
         $product->delete();
 
-        // Exemplo de resposta JSON
-        return $this->response->json(['message' => 'Produto removido com sucesso']);
+        redirect('/products');
     }
-    
-    // Outros métodos do controlador...
 }
 ```
-### Exemplo de Middleware (app/middlewares/ExampleMiddleware.php)
+### Exemplo de Middleware (src/Http/Middlewares/ExampleMiddleware.php)
 ```php
 <?php
 
 declare(strict_types=1);
 
-namespace App\Middlewares;
+namespace App\Http\Middlewares;
 
-use App\Middlewares\Contracts\MiddlewareInterface;
-use App\Http\Request;
-use App\Http\Response;
+use App\Core\Http\Request;
+use App\Core\Http\Response;
+use App\Http\Middlewares\Contracts\MiddlewareInterface;
 use \Closure;
 
 class ExampleMiddleware implements MiddlewareInterface
@@ -217,26 +244,26 @@ class ExampleMiddleware implements MiddlewareInterface
 }
 ```
 
-### Rotas de Exemplo (app/routes/routes.php)
+### Rotas de Exemplo (routes/routes.php)
 ```php
 <?php
 
-use App\Controllers\ProductController;
-use App\Middlewares\ExampleMiddleware;
+use App\Core\Http\Router;
+use App\Http\Controllers\ProductController;
+use App\Http\Middlewares\ExampleMiddleware;
 
-$router->get('/', fn () => view('home/index'));
+Router::get('/', fn () => view('home/index'));
 
-$router->middlewares([ExampleMiddleware::class])
-    ->group('/products', function ($router) {
-        $router->get('', [ProductController::class, 'index']);
-        $router->get('/create', [ProductController::class, 'create']);
-        $router->post('', [ProductController::class, 'store']);
-        $router->get('/{id}', [ProductController::class, 'show'], [ExampleMiddleware::class]);
-        $router->get('/{id}/edit', [ProductController::class, 'edit']);
-        $router->put('/{id}', [ProductController::class, 'update'], [ExampleMiddleware::class]);
-        $router->delete('/{id}', [ProductController::class, 'delete'], [ExampleMiddleware::class]);
+Router::middlewares([ExampleMiddleware::class])
+    ->group('/products', function () {
+        Router::get('/', [ProductController::class, 'index']);
+        Router::get('/create', [ProductController::class, 'create']);
+        Router::post('/', [ProductController::class, 'store']);
+        Router::get('/{id}', [ProductController::class, 'show']);
+        Router::get('/{id}/edit', [ProductController::class, 'edit']);
+        Router::put('/{id}', [ProductController::class, 'update']);
+        Router::delete('/{id}', [ProductController::class, 'delete']);
     });
-
 ```
 
 ## Contribuições e Suporte 🤝

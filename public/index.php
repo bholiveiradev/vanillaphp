@@ -2,22 +2,21 @@
 
 session_start();
 
-use Whoops\Run;
+use Predis\Autoloader as RedisLoader;
+use Whoops\Run as Whoops;
 use Whoops\Handler\PrettyPageHandler;
-use App\Http\Router;
-use Predis\Autoloader as Redis;
+use App\Core\Bootstrap;
+use App\Core\Http\Router;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 require_once(__DIR__ . '/../config/app.php');
 
-$whoops = new Run();
-$whoops->pushHandler(new PrettyPageHandler());
+RedisLoader::register();
+
+$whoops = new Whoops;
+$whoops->pushHandler(new PrettyPageHandler);
 $whoops->register();
-
-Redis::register();
-
-$router = new Router();
 
 require_once(ROOT_PATH . '/routes/routes.php');
 
-$router->run();
+Bootstrap::run(Router::routes());

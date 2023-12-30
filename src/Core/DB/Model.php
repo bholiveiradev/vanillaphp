@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace App\Database;
+namespace App\Core\DB;
 
-class ActiveRecord
-{
-    
+class Model
+{    
     public function __construct(
         protected string $table,
         protected string $primaryKey = 'id',
         protected array  $attributes = [],
         private   array  $fields = [],
+        private  ?Builder $builder = null,
+        
     )
     {
+        $this->builder = new Builder($table);
     }
 
     public function __get(string $name): mixed
@@ -38,7 +40,7 @@ class ActiveRecord
 
     public function find(string|int $id): self
     {
-        $result = (new QueryBuilder($this->table))
+        $result = $this->builder
             ->where($this->primaryKey, $id)
             ->get()[0];
 
@@ -47,9 +49,7 @@ class ActiveRecord
 
     public function all(): array
     {
-        $result = (new QueryBuilder($this->table))
-            ->select()
-            ->get();
+        $result = $this->builder->get();
 
         $items = array_map(function ($item) {
             return new static($item);
@@ -68,7 +68,7 @@ class ActiveRecord
         
         unset($fields[$this->primaryKey]);
 
-        $result = (new QueryBuilder($this->table))->insert($fields);
+        $result = $this->builder->insert($fields);
 
         $this->fields[$this->primaryKey] = $result;
 
@@ -88,7 +88,7 @@ class ActiveRecord
 
         unset($fields[$this->primaryKey]);
         
-        $result = (new QueryBuilder($this->table))
+        $result = $this->builder
             ->where($this->primaryKey, $id)
             ->update($fields);
         
@@ -105,7 +105,7 @@ class ActiveRecord
     {
         $id = !is_null($id) ? $id : $this->fields[$this->primaryKey];
 
-        $result = (new QueryBuilder($this->table))
+        $result = $this->builder
             ->where($this->primaryKey, $id)
             ->delete();
 

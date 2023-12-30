@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Http\Controllers;
 
-use App\Controllers\Controller;
-use App\Http\Request;
+use App\Core\Http\Request;
 use App\Models\Product;
 use App\Support\Session;
-use App\UseCases\ProductUseCase;
+use App\Services\ProductService;
 
 class ProductController extends Controller
 {
     public function index(): void
     {
-        $products = (new ProductUseCase())->all();
+        $service = new ProductService;
+        $products = $service->all();
 
         view('products/index', ['products' => $products]);
     }

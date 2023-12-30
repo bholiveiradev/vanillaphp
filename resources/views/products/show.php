@@ -23,7 +23,7 @@
       <p>ID: <?= $product->id ?></p>
       <p>PRICE: <?= $product->price ?></p>
       <p>ESTOQUE: <?= $product->stock ?></p>
-      <a class="btn btn-sm btn-success" href="<?= APP_URL . '/products' ?>">Voltar</a>
+      <a class="btn btn-success" href="<?= APP_URL . '/products' ?>">Voltar</a>
     </section>
   </main>
   <footer>

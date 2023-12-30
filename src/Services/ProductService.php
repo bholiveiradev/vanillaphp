@@ -1,11 +1,11 @@
 <?php
 
-namespace App\UseCases;
+namespace App\Services;
 
 use App\Traits\Cache;
 use App\Models\Product;
 
-class ProductUseCase
+class ProductService
 {
     use Cache;
 
@@ -17,7 +17,8 @@ class ProductUseCase
     public function all(): mixed
     {
         if (!$this->cache->get('productList')) {
-            $products = (new Product())->all();
+            $model = new Product;
+            $products = $model->all();
 
             $productList = array_map(fn ($item) => [
                 'id'    => $item->id,

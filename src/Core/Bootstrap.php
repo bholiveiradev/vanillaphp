@@ -2,28 +2,31 @@
 
 declare(strict_types=1);
 
-namespace App\Http;
+namespace App\Core;
 
-use App\Middlewares\Contracts\MiddlewareInterface;
+use App\Core\Http\Request;
+use App\Core\Http\Response;
+use App\Http\Middlewares\Contracts\MiddlewareInterface;
 use Exception;
 
-class RouteDispatcher
+class Bootstrap
 {
-    public function __construct(private array $routes)
+    public static function run(array $routes): void
     {
+        self::dispatch($routes, new Request, new Response);
     }
 
-    public function dispatch(Request $request, Response $response): mixed
+    public static function dispatch(array $routes, Request $request, Response $response): mixed
     {
-        foreach ($this->routes as $route) {
-            if ($this->isMatchingRoute($request, $route)) {
-                $params = $this->extractParamsFromUri($request, $route);
+        foreach ($routes as $route) {
+            if (self::isMatchingRoute($request, $route)) {
+                $params = self::extractParamsFromUri($request, $route);
                 $middlewares = array_reverse($route['middlewares']);
 
-                $next = $this->runHandler($route, $request, $response, $params);
+                $next = self::runHandler($route, $request, $response, $params);
 
                 foreach ($middlewares as $middleware) {
-                    $middlewareObject = $this->instantiateMiddleware($middleware);
+                    $middlewareObject = self::instantiateMiddleware($middleware);
 
                     $next = function () use ($middlewareObject, $request, $response, $next) {
                         return $middlewareObject->handle($request, $response, $next);
@@ -37,15 +40,15 @@ class RouteDispatcher
         throw new Exception('Route not found', 404);
     }
 
-    private function isMatchingRoute(Request $request, array $route): bool
+    private static function isMatchingRoute(Request $request, array $route): bool
     {
         return $request->getMethod() === $route['method'] &&
-            preg_match($this->replacePathToRegex($route['uri']), $request->getUri());
+            preg_match(self::replacePathToRegex($route['uri']), $request->getUri());
     }
 
-    private function extractParamsFromUri(Request $request, array $route): array
+    private static function extractParamsFromUri(Request $request, array $route): array
     {
-        $pathRegex = $this->replacePathToRegex($route['uri']);
+        $pathRegex = self::replacePathToRegex($route['uri']);
         
         preg_match($pathRegex, $request->getUri(), $matches);
         array_shift($matches);
@@ -55,18 +58,18 @@ class RouteDispatcher
         return $matches;
     }
 
-    private function runHandler(array $route, Request $request, Response $response, array $params): \Closure
+    private static function runHandler(array $route, Request $request, Response $response, array $params): \Closure
     {
         return function () use ($route, $request, $response, $params) {
             $handler = $route['handler'];
 
             if ($handler instanceof \Closure) {
-                return $handler($request, $response);
+                return $handler($request, $response, $params);
             }
 
             if (is_array($handler)) {
                 list($controller, $method) = $handler;
-                return (new $controller)->$method($request, $response);
+                return (new $controller)->$method($request, $response, $params);
             }
 
             if (class_exists($handler)) {
@@ -77,7 +80,7 @@ class RouteDispatcher
         };
     }
 
-    private function instantiateMiddleware(string $middleware): MiddlewareInterface
+    private static function instantiateMiddleware(string $middleware): MiddlewareInterface
     {
         $middlewareObject = new $middleware;
 
@@ -88,9 +91,8 @@ class RouteDispatcher
         return $middlewareObject;
     }
 
-    private function replacePathToRegex(string $path): string
+    private static function replacePathToRegex(string $path): string
     {
-        $regex = preg_replace('#\{([\w]+)\}#', '(?P<$1>[^/]+)', $path);
-        return '#^' . $regex . '$#';
+        return '#^' . preg_replace('#\{([\w]+)\}#', '(?P<$1>[^/]+)', $path) . '$#';
     }
 }
