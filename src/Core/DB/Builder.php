@@ -6,12 +6,12 @@ namespace App\Core\DB;
 
 class Builder
 {
-    private static string $table;
-    private static string $select;
-    private static string $where;
-    private static string $orderBy;
-    private static string $limit;
-    private static array  $bindings;
+    private string $table;
+    private string $select;
+    private string $where;
+    private string $orderBy;
+    private string $limit;
+    private array $bindings;
 
     public function __construct(
         string $table,
@@ -19,116 +19,85 @@ class Builder
         string $where = '',
         string $orderBy = '',
         string $limit = '',
-        array  $bindings = [],
-    )
-    {
-        self::$table = $table;
-        self::$select = $select;
-        self::$where = $where;
-        self::$orderBy = $orderBy;
-        self::$limit = $limit;
-        self::$bindings = $bindings;
+        array $bindings = []
+    ) {
+        $this->table = $table;
+        $this->select = $select;
+        $this->where = $where;
+        $this->orderBy = $orderBy;
+        $this->limit = $limit;
+        $this->bindings = $bindings;
     }
 
-    public static function select(string $columns = '*'): self
+    public static function table(string $table): self
     {
-        self::$select = $columns;
-
-        return new static(
-            self::$table,
-            self::$select,
-            self::$where,
-            self::$orderBy,
-            self::$limit,
-            self::$bindings,
-        );
+        return new static($table);
     }
 
-    public static function where(string $field, string|int $value, string $operator = '='): self
+    public function select(string $columns = '*'): self
     {
-        if (empty(self::$where)) {
-            self::$where = "WHERE {$field} {$operator} ?";
-        } else {
-            self::$where = " ". self::$where . "AND {$field} {$operator} ?";
-        }
-
-        self::$bindings[] = $value;
-
-        return new static(
-            self::$table,
-            self::$select,
-            self::$where,
-            self::$orderBy,
-            self::$limit,
-            self::$bindings,
-        );
+        return $this->newInstance($this->table, $columns, $this->where, $this->orderBy, $this->limit, $this->bindings);
     }
 
-    public static function orderBy(string $column, string $direction = 'ASC'): self
+    public function where(string $field, string|int $value, string $operator = '='): self
     {
-        self::$orderBy = "ORDER BY {$column} {$direction}";
+        $where = empty($this->where) ? "WHERE {$field} {$operator} ?" : $this->where . " AND {$field} {$operator} ?";
+        $bindings = array_merge($this->bindings, [$value]);
 
-        return new static(
-            self::$table,
-            self::$select,
-            self::$where,
-            self::$orderBy,
-            self::$limit,
-            self::$bindings,
-        );
+        return $this->newInstance($this->table, $this->select, $where, $this->orderBy, $this->limit, $bindings);
     }
 
-    public static function limit(int $count, int $offset = 0): self
+    public function orderBy(string $column, string $direction = 'ASC'): self
     {
-        self::$limit = "LIMIT {$count} OFFSET {$offset}";
+        $orderBy = "ORDER BY {$column} {$direction}";
 
-        return new static(
-            self::$table,
-            self::$select,
-            self::$where,
-            self::$orderBy,
-            self::$limit,
-            self::$bindings,
-        );
+        return $this->newInstance($this->table, $this->select, $this->where, $orderBy, $this->limit, $this->bindings);
     }
 
-    public static function get(): array
+    public function limit(int $count, int $offset = 0): self
     {
-        $sql = "SELECT " . self::$select . " FROM " . self::$table;
+        $limit = "LIMIT {$count} OFFSET {$offset}";
 
-        if (!empty(self::$where)) {
-            $sql .= " " . self::$where;
+        return $this->newInstance($this->table, $this->select, $this->where, $this->orderBy, $limit, $this->bindings);
+    }
+
+    public function get(): array
+    {
+        $sql = "SELECT {$this->select} FROM {$this->table}";
+        
+        if (!empty($this->where)) {
+            $sql .= " {$this->where}";
         }
         
-        if (!empty(self::$orderBy)) {
-            $sql .= " " . self::$orderBy;
+        if (!empty($this->orderBy)) {
+            $sql .= " {$this->orderBy}";
         }
         
-        if (!empty(self::$limit)) {
-            $sql .= " " . self::$limit;
+        if (!empty($this->limit)) {
+            $sql .= " {$this->limit}";
         }
-        
+
         $stmt = DB::pdo()->prepare($sql);
-        $stmt->execute(self::$bindings);
+        $stmt->execute($this->bindings);
 
         return $stmt->fetchAll();
     }
 
-    public static function count(string $fields = '*'): int
+    public function count(string $fields = '*'): int
     {
-        $sql = "SELECT COUNT({$fields}) as count FROM " . self::$table . " " . self::$where;
+        $sql = "SELECT COUNT({$fields}) as count FROM {$this->table} {$this->where}";
         $stmt = DB::pdo()->prepare($sql);
-        $stmt->execute(self::$bindings);
+        $stmt->execute($this->bindings);
 
         return (int) $stmt->fetch()['count'];
     }
 
-    public static function insert(array $data): string|false
+    public function insert(array $data): string|false
     {
         $fields = implode(', ', array_keys($data));
         $values = implode(', ', array_fill(0, count($data), '?'));
 
-        $sql = "INSERT INTO " . self::$table . " ({$fields}) VALUES ({$values})";
+        $sql = "INSERT INTO {$this->table} ({$fields}) VALUES ({$values})";
 
         $stmt = DB::pdo()->prepare($sql);
 
@@ -139,27 +108,32 @@ class Builder
         return $lastInsertId;
     }
 
-    public static function update(array $data): bool
+    public function update(array $data): bool
     {
         $fields = array_map(function ($field) {
             return "{$field} = ?";
         }, array_keys($data));
 
-        $sql = "UPDATE " . self::$table . " SET " . implode(', ', $fields) . " " . self::$where;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " {$this->where}";
 
         $stmt = DB::pdo()->prepare($sql);
-        $result = $stmt->execute(array_merge(array_values($data), self::$bindings));
+        $result = $stmt->execute(array_merge(array_values($data), $this->bindings));
 
         return $result;
     }
 
-    public static function delete(): bool
+    public function delete(): bool
     {
-        $sql = "DELETE FROM " . self::$table . " " . self::$where;
+        $sql = "DELETE FROM {$this->table} {$this->where}";
 
         $stmt = DB::pdo()->prepare($sql);
-        $result = $stmt->execute(self::$bindings);
+        $result = $stmt->execute($this->bindings);
 
         return $result;
+    }
+
+    private function newInstance(string $table, string $select, string $where, string $orderBy, string $limit, array $bindings): self
+    {
+        return new static($table, $select, $where, $orderBy, $limit, $bindings);
     }
 }

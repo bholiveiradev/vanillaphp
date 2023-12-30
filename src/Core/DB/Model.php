@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Core\DB;
 
 class Model
-{    
-    public function __construct(
-        protected string $table,
-        protected string $primaryKey = 'id',
-        protected array  $attributes = [],
-        private   array  $fields = [],
-        private  ?Builder $builder = null,
-        
-    )
+{
+    protected static string $table;
+    protected static array $attributes = [];
+    protected static string $primaryKey = 'id';
+    public static array $filled = [];
+    private array $fields = [];
+    
+    private static ?array $primary = null;
+
+    public function __construct(array $fields)
     {
-        $this->builder = new Builder($table);
+        $this->fields = $fields;
     }
 
     public function __get(string $name): mixed
@@ -28,89 +29,91 @@ class Model
         $this->fields[$name] = $value;
     }
 
-    public function fill(array $data): void
+    public static function fill(array $data): self
     {
-        foreach ($this->attributes as $key => $attribute) {
-            if (isset($data[$attribute])) {
-                $this->$attribute = $data[$attribute];
+        $fields = [];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, static::$attributes)) {
+                $fields[$key] = $value;
             }
-            unset($this->fields[$key]);
         }
+
+        static::$filled = $fields;
+
+        return new static($fields);
     }
 
-    public function find(string|int $id): self
+    public static function find(string|int $id): self
     {
-        $result = $this->builder
-            ->where($this->primaryKey, $id)
-            ->get()[0];
+        $fields = Builder::table(static::$table)->where(static::$primaryKey, $id)->get()[0];
 
-        return new static($result);
+        static::$primary[static::$primaryKey] = $fields[static::$primaryKey];
+
+        return new static($fields);
     }
 
-    public function all(): array
+    public static function all(): array
     {
-        $result = $this->builder->get();
+        $result = Builder::table(static::$table)->get();
 
-        $items = array_map(function ($item) {
-            return new static($item);
+        $items = array_map(function ($fields) {
+            return new static($fields);
         }, $result);
 
         return $items;
     }
 
-    public function onInsert()
+    public static function onInsert()
     {
+        // Lógica para evento de inserção, se necessário
     }
 
-    public function insert(array $data = []): string|false
+    public static function insert(array $data = []): string|false
     {
-        $fields = !empty($data) ? $data : $this->fields;
-        
-        unset($fields[$this->primaryKey]);
+        $fields = !empty($data) ? $data : static::$filled;
 
-        $result = $this->builder->insert($fields);
+        unset($fields[static::$primaryKey]);
 
-        $this->fields[$this->primaryKey] = $result;
+        $result =Builder::table(static::$table)->insert($fields);
 
-        $this->onInsert();
+        static::onInsert();
 
         return $result;
     }
 
-    public function onUpdate()
-    {  
+    public static function onUpdate()
+    {
+        // Lógica para evento de atualização, se necessário
     }
 
-    public function update(array $data = [], ?int $id = null): bool
+    public static function update(array $data = [], ?int $id = null): bool
     {
-        $fields = !empty($data) ? $data : $this->fields;
-        $id = !is_null($id) ? $id : $fields[$this->primaryKey];
+        static::fill($data);
 
-        unset($fields[$this->primaryKey]);
-        
-        $result = $this->builder
-            ->where($this->primaryKey, $id)
-            ->update($fields);
-        
-        $this->onUpdate();
+        $fields = !empty($data) ? static::$filled : [];
+        $id = !is_null($id) ? $id : static::$primary[static::$primaryKey];
+
+        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->update($fields);
+
+        static::onUpdate();
 
         return $result;
     }
 
-    public function onDelete()
+    public static function onDelete()
     {
+        // Lógica para evento de exclusão, se necessário
     }
 
-    public function delete(?int $id = null): bool
+    public static function delete(?int $id = null): bool
     {
-        $id = !is_null($id) ? $id : $this->fields[$this->primaryKey];
+        $id = !is_null($id) ? $id : static::$primary[static::$primaryKey];
 
-        $result = $this->builder
-            ->where($this->primaryKey, $id)
-            ->delete();
+        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->delete();
 
-        $this->onDelete();
-        
+        static::onDelete();
+
         return $result;
     }
 }

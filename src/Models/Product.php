@@ -11,35 +11,34 @@ class Product extends Model
 {
     use Cache;
 
-    public function __construct(
-        array $fields = [],
-        protected string $table = 'products',
-        protected array $attributes = ['name', 'price', 'stock']
-    )
+    protected static string $table = 'products';
+    protected static array $attributes = ['name', 'price', 'stock'];
+
+    public function __construct(array $fields = [])
     {
-        parent::__construct(table: $table, fields: $fields, attributes: $attributes);
-        
-        $this->cacheInit();
+        parent::__construct(fields: $fields);
+
+        self::cacheInit();
     }
 
-    public function onInsert()
+    public static function onInsert()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 
-    public function onUpdate()
+    public static function onUpdate()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 
-    public function onDelete()
+    public static function onDelete()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 }

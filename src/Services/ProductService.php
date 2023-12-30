@@ -8,17 +8,13 @@ use App\Models\Product;
 class ProductService
 {
     use Cache;
-
-    public function __construct()
-    {
-        $this->cacheInit();
-    }
     
-    public function all(): mixed
+    public static function gerProductsFromCache(): mixed
     {
-        if (!$this->cache->get('productList')) {
-            $model = new Product;
-            $products = $model->all();
+        self::cacheInit();
+
+        if (! self::$cache->get('productList')) {
+            $products = Product::all();
 
             $productList = array_map(fn ($item) => [
                 'id'    => $item->id,
@@ -26,9 +22,9 @@ class ProductService
                 'price' => $item->price,
             ], $products);
 
-            $this->cache->set('productList', $productList);
+            self::$cache->set('productList', $productList);
         }
 
-        return $this->cache->get('productList');
+        return self::$cache->get('productList');
     }
 }

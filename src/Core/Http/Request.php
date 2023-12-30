@@ -33,9 +33,7 @@ class Request
 
     public function getMethod(): string
     {
-        return !empty(self::getParam('_method')) 
-            ? self::getParam('_method') 
-            : self::$method;
+        return !empty(self::getParam('_method')) ? self::getParam('_method') : self::$method;
     }
 
     public static function getUri(): string
@@ -63,22 +61,27 @@ class Request
         return isset(self::$params[$name]) ? self::$params[$name] : $default;
     }
 
+    public static function getInputs(): array
+    {
+        return self::$input;
+    }
+
     public static function getInput(string $name, ?string $default = null): ?string
     {
         return isset(self::$input[$name]) ? self::$input[$name] : $default;
     }
 
-    public static function getFiles(string $name): ?array
+    public static function getFile(string $name): ?array
     {
         return isset(self::$files[$name]) ? self::$files[$name] : null;
     }
 
-    public static function getAllFiles(): array
+    public static function getFiles(): array
     {
         return self::$files;
     }
 
-    public static function getAll(): array
+    public static function getParams(): array
     {
         return self::$params;
     }

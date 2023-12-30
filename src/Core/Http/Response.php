@@ -43,23 +43,19 @@ class Response
         return new static;
     }
 
-    public static function html(string $html, int $statusCode = Response::HTTP_OK, array $headers = []): void
+    public static function html(string $html, int $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html']): void
     {
         self::setStatusCode($statusCode);
         self::setHeaders($headers);
-
-        header('Content-Type: text/html');
 
         echo $html;
     }
 
-    public static function json(array $data, int $statusCode = Response::HTTP_OK, array $headers = []): void
+    public static function json(array $data, int $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'application/json']): void
     {
         self::setStatusCode($statusCode);
         self::setHeaders($headers);
         
-        header('Content-Type: application/json');
-
         echo json_encode($data);
     }
 }
