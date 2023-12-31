@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\DB;
 
-class Model
+abstract class Model
 {
     protected static string $table;
     protected static array $attributes = [];
