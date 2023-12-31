@@ -46,11 +46,11 @@ abstract class Model
 
     public static function find(string|int $id): self
     {
-        $fields = Builder::table(static::$table)->where(static::$primaryKey, $id)->get()[0];
+        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->get()[0];
 
-        static::$primary[static::$primaryKey] = $fields[static::$primaryKey];
+        static::$primary[static::$primaryKey] = $result[static::$primaryKey];
 
-        return new static($fields);
+        return new static($result);
     }
 
     public static function all(): array
