@@ -114,35 +114,34 @@ class Product extends Model
 {
     use Cache;
 
-    public function __construct(
-        array $fields = [],
-        protected string $table = 'products',
-        protected array $attributes = ['name', 'price', 'stock']
-    )
+    protected static string $table = 'products';
+    protected static array $attributes = ['name', 'price', 'stock'];
+
+    public function __construct(array $fields = [])
     {
-        parent::__construct(table: $table, fields: $fields, attributes: $attributes);
-        
-        $this->cacheInit();
+        parent::__construct(fields: $fields);
+
+        self::cacheInit();
     }
 
-    public function onInsert()
+    public static function onInsert()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 
-    public function onUpdate()
+    public static function onUpdate()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 
-    public function onDelete()
+    public static function onDelete()
     {
-        if ($this->cache->get('productList')) {
-            $this->cache->forget('productList');
+        if (self::$cache->get('productList')) {
+            self::$cache->forget('productList');
         }
     }
 }
@@ -164,8 +163,7 @@ class ProductController extends Controller
 {
     public function index(): void
     {
-        $service = new ProductService;
-        $products = $service->all();
+        $products = ProductService::gerProductsFromCache();
 
         view('products/index', ['products' => $products]);
     }
@@ -177,9 +175,9 @@ class ProductController extends Controller
 
     public function store(Request $request): void
     {
-        $product = new Product();
-        $product->fill($request->getAll());
-        $product->insert();
+        $data = $request::getInputs();
+
+        Product::fill($data)->insert();
 
         Session::flash('success', 'O produto foi criado!');
 
@@ -188,23 +186,23 @@ class ProductController extends Controller
 
     public function show(Request $request): void
     {
-        $product = (new Product())->find($request->id);
+        $product = Product::find($request->id);
 
         view('products/show', ['product' => $product]);
     }
 
     public function edit(Request $request): void
     {
-        $product = (new Product())->find($request->id);
+        $product = Product::find($request->id);
 
         view('products/edit', ['product' => $product]);
     }
 
     public function update(Request $request): void
     {
-        $product = (new Product())->find($request->id);
-        $product->fill($request->getAll());
-        $product->update();
+        $product = Product::find($request->id);
+
+        $product->update($request::getInputs(), $product->id);
 
         Session::flash('success', 'O produto foi salvo!');
 
@@ -213,7 +211,7 @@ class ProductController extends Controller
 
     public function delete(Request $request): void
     {
-        $product = (new Product())->find($request->id);
+        $product = Product::find($request->id);
         $product->delete();
 
         redirect('/products');
