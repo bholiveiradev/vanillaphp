@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Http\Request;
-use App\Core\Http\Response;
+use App\Core\Http\{Request, Response};
 use App\Http\Middlewares\Contracts\MiddlewareInterface;
 use Exception;
 
 class Bootstrap
 {
-    public static function run(array $routes): void
-    {
-        self::dispatch($routes, new Request, new Response);
-    }
-
     public static function dispatch(array $routes, Request $request, Response $response): mixed
     {
         foreach ($routes as $route) {

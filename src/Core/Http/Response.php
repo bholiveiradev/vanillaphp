@@ -25,13 +25,11 @@ class Response
     public static function setStatusCode(int $statusCode): self
     {
         http_response_code($statusCode);
-        return new static;
     }
 
     public static function setHeader(string $header, string $value): self
     {
         header("{$header}: {$value}");
-        return new static;
     }
 
     public static function setHeaders(array $headers): self
@@ -39,8 +37,6 @@ class Response
         foreach ($headers as $header => $value) {
             self::setHeader($header, $value);
         }
-
-        return new static;
     }
 
     public static function html(string $html, int $statusCode = Response::HTTP_OK, array $headers = ['Content-Type' => 'text/html']): void
