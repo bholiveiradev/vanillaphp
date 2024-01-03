@@ -12,6 +12,15 @@ class Router
     private static array    $middlewares = [];
     private static ?string  $prefix = null;
 
+    public function __construct()
+    {
+        header('Access-Control-Allow-Origin: *'); 
+        header("Access-Control-Allow-Credentials: true");
+        header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
+        header('Access-Control-Max-Age: 1000');
+        header('Access-Control-Allow-Headers: Origin, Cache-Control, Accept, Content-Type, X-Auth-Token , Authorization');
+    }
+
     private static function addRoute(string $method, string $uri, mixed $handler, array $middlewares): void
     {
         self::$routes[] = [
@@ -46,6 +55,11 @@ class Router
     public static function put(string $path, mixed $handler, array $middlewares = []): void
     {
         self::addRoute('PUT', $path, $handler, $middlewares);
+    }
+
+    public static function patch(string $path, mixed $handler, array $middlewares = []): void
+    {
+        self::addRoute('PATCH', $path, $handler, $middlewares);
     }
 
     public static function delete(string $path, mixed $handler, array $middlewares = []): void
