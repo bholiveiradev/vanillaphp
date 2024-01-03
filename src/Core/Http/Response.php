@@ -22,17 +22,17 @@ class Response
     const HTTP_BAD_GATEWAY = 502;
     const HTTP_SERVICE_UNAVAILABLE = 503;
     
-    public static function setStatusCode(int $statusCode): self
+    public static function setStatusCode(int $statusCode): void
     {
         http_response_code($statusCode);
     }
 
-    public static function setHeader(string $header, string $value): self
+    public static function setHeader(string $header, string $value): void
     {
         header("{$header}: {$value}");
     }
 
-    public static function setHeaders(array $headers): self
+    public static function setHeaders(array $headers): void
     {
         foreach ($headers as $header => $value) {
             self::setHeader($header, $value);
