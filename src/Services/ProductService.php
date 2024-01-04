@@ -9,12 +9,12 @@ class ProductService
 {
     use Cache;
     
-    public static function gerProductsFromCache(): mixed
+    public static function productsCache(): mixed
     {
         self::cacheInit();
 
         if (! self::$cache->get('productList')) {
-            $products = Product::all();
+            $products = Product::all('id', 'DESC');
 
             $productList = array_map(fn ($item) => [
                 'id'    => $item->id,

@@ -13,7 +13,7 @@ class ProductController extends Controller
 {
     public function index(): void
     {
-        $products = ProductService::gerProductsFromCache();
+        $products = ProductService::productsCache();
 
         view('products/index', ['products' => $products]);
     }

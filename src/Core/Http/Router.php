@@ -8,32 +8,34 @@ use Closure;
 
 class Router
 {
-    private static array    $routes = [];
-    private static array    $middlewares = [];
-    private static ?string  $prefix = null;
+    private static array $routes = [];
+    private static array $middlewares = [];
+    private static ?string $prefix = null;
 
     public function __construct()
     {
-        header('Access-Control-Allow-Origin: *'); 
+        $this->setCorsHeaders();
+    }
+
+    private function setCorsHeaders(): void
+    {
+        header('Access-Control-Allow-Origin: *');
         header("Access-Control-Allow-Credentials: true");
         header('Access-Control-Allow-Methods: GET, PUT, PATCH, POST, DELETE');
         header('Access-Control-Max-Age: 1000');
         header('Access-Control-Allow-Headers: Origin, Cache-Control, Accept, Content-Type, X-Auth-Token , Authorization');
     }
 
-    private static function addRoute(string $method, string $uri, mixed $handler, array $middlewares): void
+    public static function group(string $prefix, Closure $callback, array $middlewares = []): void
     {
-        self::$routes[] = [
-            'method' => $method,
-            'uri' => self::$prefix . rtrim($uri, '/') . '/',
-            'handler' => $handler,
-            'middlewares' => array_merge(self::$middlewares, $middlewares),
-        ];
-    }
+        $previousPrefix = self::$prefix;
 
-    private static function addMiddlewares(array $middlewares): void
-    {
-        self::$middlewares = array_merge(self::$middlewares, $middlewares);
+        self::addMiddlewares($middlewares);
+        self::$prefix = self::$prefix . $prefix;
+
+        $callback(self::class);
+
+        self::$prefix = $previousPrefix;
     }
 
     public static function middlewares(array $middlewares = []): self
@@ -41,7 +43,7 @@ class Router
         self::addMiddlewares($middlewares);
         return new static;
     }
-    
+
     public static function get(string $path, mixed $handler, array $middlewares = []): void
     {
         self::addRoute('GET', $path, $handler, $middlewares);
@@ -67,15 +69,23 @@ class Router
         self::addRoute('DELETE', $path, $handler, $middlewares);
     }
 
-    public static function group(string $prefix, Closure $callback, array $middlewares = []): void
-    {
-        self::addMiddlewares($middlewares);
-        self::$prefix = self::$prefix . $prefix;
-        $callback(self::class);
-    }
-
     public static function routes(): array
     {
         return self::$routes;
+    }
+
+    private static function addRoute(string $method, string $uri, mixed $handler, array $middlewares): void
+    {
+        self::$routes[] = [
+            'method' => $method,
+            'uri' => self::$prefix . rtrim($uri, '/') . '/',
+            'handler' => $handler,
+            'middlewares' => array_merge(self::$middlewares, $middlewares),
+        ];
+    }
+
+    private static function addMiddlewares(array $middlewares): void
+    {
+        self::$middlewares = array_merge(self::$middlewares, $middlewares);
     }
 }

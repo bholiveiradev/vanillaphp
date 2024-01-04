@@ -48,3 +48,10 @@ if (! function_exists('view')) {
         ViewHtml::processRender($view, $data);
     }
 }
+
+if (!function_exists('app_path')) {
+    function app_path($path = '')
+    {
+        return __DIR__ . '/' . ltrim($path, '/');
+    }
+}

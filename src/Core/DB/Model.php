@@ -53,9 +53,9 @@ abstract class Model
         return new static($result);
     }
 
-    public static function all(): array
+    public static function all(string $orderColumn = 'id', string $order = 'ASC'): array
     {
-        $result = Builder::table(static::$table)->get();
+        $result = Builder::table(static::$table)->orderBy($orderColumn, $order)->get();
 
         $items = array_map(function ($fields) {
             return new static($fields);

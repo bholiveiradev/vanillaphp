@@ -10,17 +10,26 @@ use Exception;
 
 class Bootstrap
 {
-    public static function dispatch(array $routes, Request $request, Response $response): mixed
+    public static function dispatch(array $routes, DIContainer $container): mixed
     {
+        $container::bindRoutes($routes);
+
+        $request = $container::make(Request::class);
+        $response = $container::make(Response::class);
+
         foreach ($routes as $route) {
             if (self::isMatchingRoute($request, $route)) {
                 $params = self::extractParamsFromUri($request, $route);
                 $middlewares = array_reverse($route['middlewares']);
 
-                $next = self::runHandler($route, $request, $response, $params);
+                $next = self::runHandler($route, $request, $response, $params, $container);
 
                 foreach ($middlewares as $middleware) {
-                    $middlewareObject = self::instantiateMiddleware($middleware);
+                    $middlewareObject = $container::make($middleware);
+
+                    if (!$middlewareObject instanceof MiddlewareInterface) {
+                        throw new Exception("O middleware '{$middleware}' não implementa a interface MiddlewareInterface.");
+                    }
 
                     $next = function () use ($middlewareObject, $request, $response, $next) {
                         return $middlewareObject->handle($request, $response, $next);
@@ -52,9 +61,9 @@ class Bootstrap
         return $matches;
     }
 
-    private static function runHandler(array $route, Request $request, Response $response, array $params): \Closure
+    private static function runHandler(array $route, Request $request, Response $response, array $params, DIContainer $container): \Closure
     {
-        return function () use ($route, $request, $response, $params) {
+        return function () use ($route, $request, $response, $params, $container) {
             $handler = $route['handler'];
 
             if ($handler instanceof \Closure) {
@@ -63,26 +72,17 @@ class Bootstrap
 
             if (is_array($handler)) {
                 list($controller, $method) = $handler;
-                return (new $controller)->$method($request, $response, $params);
+                $controllerInstance = $container::make($controller);
+                return $controllerInstance->$method($request, $response, $params);
             }
 
             if (class_exists($handler)) {
-                return call_user_func(new $handler($params));
+                $controllerInstance = $container::make($handler);
+                return call_user_func([$controllerInstance, 'handle'], $request, $response, $params);
             }
 
             throw new Exception('Not Implemented', 501);
         };
-    }
-
-    private static function instantiateMiddleware(string $middleware): MiddlewareInterface
-    {
-        $middlewareObject = new $middleware;
-
-        if (!$middlewareObject instanceof MiddlewareInterface) {
-            throw new Exception("{$middleware} must implement MiddlewareInterface");
-        }
-
-        return $middlewareObject;
     }
 
     private static function replacePathToRegex(string $path): string
