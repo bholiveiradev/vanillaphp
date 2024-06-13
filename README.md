@@ -30,6 +30,7 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |   |   |   |-- RouteDesptacher.php
 |   |   |   |-- Router.php
 |   |   |-- Bootstrap.php
+|   |   |-- DIContainer.php
 |   |-- Http/
 |   |   |-- Controllers/
 |   |   |   |-- Controller.php
@@ -38,6 +39,8 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |   |-- Helpers/
 |   |   |-- Helpers.php
 |   |-- Models/
+|   |-- Providers/
+|   |   |-- AppServiceProvider.php
 |   |-- Services/
 |   |-- Support/
 |   |   |-- Contracts/
