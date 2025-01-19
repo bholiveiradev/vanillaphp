@@ -30,7 +30,6 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |   |   |   |-- RouteDesptacher.php
 |   |   |   |-- Router.php
 |   |   |-- Bootstrap.php
-|   |   |-- DIContainer.php
 |   |-- Http/
 |   |   |-- Controllers/
 |   |   |   |-- Controller.php
@@ -39,8 +38,6 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |   |-- Helpers/
 |   |   |-- Helpers.php
 |   |-- Models/
-|   |-- Providers/
-|   |   |-- AppServiceProvider.php
 |   |-- Services/
 |   |-- Support/
 |   |   |-- Contracts/
@@ -149,7 +146,7 @@ class Product extends Model
     }
 }
 ```
-### Exemplo de Controlador (src/Http/Controllers/ProductController.php)
+### Exemplo de Controller (src/Http/Controllers/ProductController.php)
 ```php
 <?php
 
@@ -166,7 +163,7 @@ class ProductController extends Controller
 {
     public function index(): void
     {
-        $products = ProductService::gerProductsFromCache();
+        $products = ProductService::productsCache();
 
         view('products/index', ['products' => $products]);
     }
@@ -191,7 +188,7 @@ class ProductController extends Controller
     {
         $product = Product::find($request->id);
 
-        view('products/show', ['product' => $product]);
+        view('products/show', $product->toArray());
     }
 
     public function edit(Request $request): void
