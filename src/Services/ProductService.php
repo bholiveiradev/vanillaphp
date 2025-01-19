@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Traits\Cache;
@@ -13,18 +15,19 @@ class ProductService
     {
         self::cacheInit();
 
-        if (! self::$cache->get('productList')) {
+        if (! self::$cache->get('product-list')) {
             $products = Product::all('id', 'DESC');
 
             $productList = array_map(fn ($item) => [
                 'id'    => $item->id,
                 'name'  => $item->name,
                 'price' => $item->price,
+                'stock' => $item->stock,
             ], $products);
 
-            self::$cache->set('productList', $productList);
+            self::$cache->set('product-list', $productList);
         }
 
-        return self::$cache->get('productList');
+        return self::$cache->get('product-list');
     }
 }

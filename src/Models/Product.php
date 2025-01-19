@@ -23,22 +23,22 @@ class Product extends Model
 
     public static function onInsert()
     {
-        if (self::$cache->get('productList')) {
-            self::$cache->forget('productList');
+        if (self::$cache->get('product-list')) {
+            self::$cache->forget('product-list');
         }
     }
 
     public static function onUpdate()
     {
-        if (self::$cache->get('productList')) {
-            self::$cache->forget('productList');
+        if (self::$cache->get('product-list')) {
+            self::$cache->forget('product-list');
         }
     }
 
     public static function onDelete()
     {
-        if (self::$cache->get('productList')) {
-            self::$cache->forget('productList');
+        if (self::$cache->get('product-list')) {
+            self::$cache->forget('product-list');
         }
     }
 }

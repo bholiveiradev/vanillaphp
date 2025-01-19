@@ -39,9 +39,10 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th>#</th>
                   <th>Nome</th>
                   <th>Preço</th>
+                  <th>Estoque</th>
                   <th></th>
                 </tr>
               </thead>
@@ -52,6 +53,7 @@
                     <td><?= $product->id ?></td>
                     <td><?= $product->name ?></td>
                     <td><?= $product->price ?></td>
+                    <td><?= $product->stock ?></td>
                     <td class="d-flex">
                       <a class="btn btn-sm btn-primary mx-1"
                         href="<?= APP_URL . '/products/' . $product->id ?>">Visualizar</a>

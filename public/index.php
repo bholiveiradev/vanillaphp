@@ -7,8 +7,7 @@ use Predis\Autoloader as RedisLoader;
 use Whoops\Run as Whoops;
 use Whoops\Handler\PrettyPageHandler;
 use App\Core\Bootstrap;
-use App\Core\Http\Router;
-use App\Providers\AppServiceProvider;
+use App\Core\Http\{Request, Response, Router};
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 require_once(__DIR__ . '/../config/app.php');
@@ -21,8 +20,4 @@ $whoops->register();
 
 require_once(ROOT_PATH . '/routes/routes.php');
 
-$container = new DIContainer();
-
-AppServiceProvider::register($container);
-
-Bootstrap::dispatch(Router::routes(), $container);
+Bootstrap::dispatch(Router::getRoutes(), new Request(), new Response());

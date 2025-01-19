@@ -1,7 +1,7 @@
 <?php
 
 use App\Core\Http\Router;
-use App\Http\Controllers\Api\ProductController as ProductApiController;
+use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\ProductController;
 use App\Http\Middlewares\ExampleMiddleware;
 
@@ -19,9 +19,9 @@ Router::middlewares([ExampleMiddleware::class])
     });
 
     Router::group('/api', function () {
-        Router::get('/products', [ProductApiController::class, 'index']);
-        Router::post('/products', [ProductApiController::class, 'store']);
-        Router::get('/products/{id}', [ProductApiController::class, 'show']);
-        Router::put('/products/{id}', [ProductApiController::class, 'update']);
-        Router::delete('/products/{id}', [ProductApiController::class, 'delete']);
+        Router::get('/products', [ApiProductController::class, 'index']);
+        Router::post('/products', [ApiProductController::class, 'store']);
+        Router::get('/products/{id}', [ApiProductController::class, 'show']);
+        Router::put('/products/{id}', [ApiProductController::class, 'update']);
+        Router::delete('/products/{id}', [ApiProductController::class, 'delete']);
     });

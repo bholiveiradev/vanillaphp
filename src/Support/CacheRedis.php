@@ -29,4 +29,9 @@ class CacheRedis implements CacheInterface
     {
         $this->client->del('cache_'.$key);
     }
+
+    public function flushAll(): void
+    {
+        $this->client->flushall();
+    }
 }

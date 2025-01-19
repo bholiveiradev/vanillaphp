@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Support\Contracts;
+declare(strict_types=1);
 
-use App\Core\Http\Response;
+namespace App\Support\Contracts;
 
 interface ViewInterface
 {

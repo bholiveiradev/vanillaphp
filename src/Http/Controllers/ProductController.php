@@ -9,7 +9,7 @@ use App\Models\Product;
 use App\Support\Session;
 use App\Services\ProductService;
 
-class ProductController extends Controller
+final class ProductController extends Controller
 {
     public function index(): void
     {

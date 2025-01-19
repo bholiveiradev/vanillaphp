@@ -27,6 +27,9 @@
         "mockery/mockery": "^1.6"
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": "vendor/bin/phpunit",
+        "post-install-cmd": [
+            "docker-compose exec redis sh && FLUSHALL"
+        ]
     }
 }

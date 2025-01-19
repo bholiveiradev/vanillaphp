@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core\DB;
 
-abstract class Model
+abstract class Model implements \JsonSerializable
 {
     protected static string $table;
     protected static array $attributes = [];
@@ -42,6 +42,16 @@ abstract class Model
         static::$filled = $fields;
 
         return new static($fields);
+    }
+
+    public function toArray(): array
+    {
+        return $this->fields;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 
     public static function find(string|int $id): self

@@ -9,13 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\ProductService;
 
-class ProductController extends Controller
+final class ProductController extends Controller
 {
     public function index(Request $request, Response $response): void
     {
-        $products = ProductService::gerProductsFromCache();
+        $products = ProductService::productsCache();
 
-        $response::json(['products' => $products]);
+        $response::json($products);
     }
 
     public function store(Request $request, Response $response): void
@@ -31,7 +31,7 @@ class ProductController extends Controller
     {
         $product = Product::find($request->id);
 
-        $response::json(['product' => $product]);
+        $response::json($product->toArray());
     }
 
     public function update(Request $request, Response $response): void

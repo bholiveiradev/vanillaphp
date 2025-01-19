@@ -17,7 +17,7 @@ trait Cache
             new Client([
                 'scheme' => 'tcp',
                 'host'   => 'redis',
-                'port'   => 6379
+                'port'   => '6379'
             ])
         );
     }

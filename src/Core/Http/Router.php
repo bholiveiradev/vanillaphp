@@ -69,7 +69,7 @@ class Router
         self::addRoute('DELETE', $path, $handler, $middlewares);
     }
 
-    public static function routes(): array
+    public static function getRoutes(): array
     {
         return self::$routes;
     }
