@@ -11,7 +11,7 @@ abstract class Model implements \JsonSerializable
     protected static string $primaryKey = 'id';
     public static array $filled = [];
     private array $fields = [];
-    
+
     private static ?array $primary = null;
 
     public function __construct(array $fields)
@@ -85,7 +85,7 @@ abstract class Model implements \JsonSerializable
 
         unset($fields[static::$primaryKey]);
 
-        $result =Builder::table(static::$table)->insert($fields);
+        $result = Builder::table(static::$table)->insert($fields);
 
         static::onInsert();
 

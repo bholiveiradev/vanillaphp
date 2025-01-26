@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: 'simply-app'
     build: ./docker/php
     ports:
       - 8000:80
@@ -9,9 +10,10 @@ services:
     links:
       - db
     networks:
-      - vanillaphp
+      - simply-network
 
   db:
+    container_name: 'simply-db'
     image: mysql:5.7
     ports:
       - "3306:3306"
@@ -25,9 +27,10 @@ services:
       - ./docker/dump:/docker-entrypoint-initdb.d
       - ./docker/data/mysql:/var/lib/mysql
     networks:
-      - vanillaphp
+      - simply-network
 
   phpmyadmin:
+    container_name: 'simply-dbadmin'
     image: phpmyadmin/phpmyadmin
     links:
       - db
@@ -40,9 +43,10 @@ services:
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
     networks:
-      - vanillaphp
+      - simply-network
 
   redis:
+    container_name: 'simply-redis'
     image: redis:7.2-alpine
     restart: always
     ports:
@@ -51,10 +55,10 @@ services:
     volumes: 
       - ./docker/data/cache:/data
     networks:
-      - vanillaphp
+      - simply-network
 
 networks:
-  vanillaphp:
+  simply-network:
     driver: bridge
 
 volumes:

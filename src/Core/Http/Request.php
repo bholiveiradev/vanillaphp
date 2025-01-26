@@ -15,11 +15,12 @@ class Request
     private static array  $files;
     private static string $body;
 
-    public function __construct() {
+    public function __construct()
+    {
         self::$method   = $_SERVER['REQUEST_METHOD'];
         self::$uri      = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         self::$query    = !empty($_GET) ? filter_input_array(INPUT_GET, FILTER_DEFAULT) : [];
-        self::$input    = !empty($_POST) ? filter_input_array(INPUT_POST, FILTER_DEFAULT): [];
+        self::$input    = !empty($_POST) ? filter_input_array(INPUT_POST, FILTER_DEFAULT) : [];
         self::$files    = !empty($_FILES) ? $_FILES : [];
         self::$params   = (array) self::$query + (array) self::$input + $_COOKIE;
         self::$headers  = getallheaders();

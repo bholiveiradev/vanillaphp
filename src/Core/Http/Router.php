@@ -31,7 +31,7 @@ class Router
         $previousPrefix = self::$prefix;
 
         self::addMiddlewares($middlewares);
-        self::$prefix = self::$prefix . $prefix;
+        self::$prefix .= $prefix;
 
         $callback(self::class);
 

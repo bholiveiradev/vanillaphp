@@ -21,7 +21,7 @@ class Response
     const HTTP_NOT_IMPLEMENTED = 501;
     const HTTP_BAD_GATEWAY = 502;
     const HTTP_SERVICE_UNAVAILABLE = 503;
-    
+
     public static function setStatusCode(int $statusCode): void
     {
         http_response_code($statusCode);
@@ -51,7 +51,7 @@ class Response
     {
         self::setStatusCode($statusCode);
         self::setHeaders($headers);
-        
+
         echo json_encode($data);
     }
 }

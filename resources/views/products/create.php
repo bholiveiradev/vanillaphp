@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Create Product</title>
+  <title>Cadastrar Produto</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -19,7 +19,7 @@
   </header>
   <main>
     <section class="container">
-      <h1>Novo Produto</h1>
+      <h1 class="mb-4">Cadastrar Produto</h1>
       <form action="<?= APP_URL . '/products' ?>" method="POST">
         <div class="mb-3">
           <label for="name" class="form-label">Nome do produto</label>

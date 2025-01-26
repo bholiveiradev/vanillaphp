@@ -1,23 +1,26 @@
 <?php
-use App\Core\DIContainer;
 
 session_start();
 
-use Predis\Autoloader as RedisLoader;
+use Predis\Autoloader as Redis;
 use Whoops\Run as Whoops;
 use Whoops\Handler\PrettyPageHandler;
 use App\Core\Bootstrap;
 use App\Core\Http\{Request, Response, Router};
 
-require_once(__DIR__ . '/../vendor/autoload.php');
-require_once(__DIR__ . '/../config/app.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
-RedisLoader::register();
+$dotenv = Dotenv\Dotenv::createImmutable(realpath(__DIR__ . '/../'));
+$dotenv->load();
 
-$whoops = new Whoops;
-$whoops->pushHandler(new PrettyPageHandler);
+require_once __DIR__ . '/../config/config.php';
+
+Redis::register();
+
+$whoops = new Whoops();
+$whoops->pushHandler(new PrettyPageHandler());
 $whoops->register();
 
-require_once(ROOT_PATH . '/routes/routes.php');
+require_once ROOT_PATH . '/routes/routes.php';
 
 Bootstrap::dispatch(Router::getRoutes(), new Request(), new Response());

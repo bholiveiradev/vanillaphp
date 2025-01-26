@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Create Product</title>
+  <title>Atualizar Produto</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -19,7 +19,7 @@
   </header>
   <main>
     <section class="container">
-      <h1>Atualizar Produto</h1>
+      <h1 class="mb-4">Atualizar Produto # <?= $product->id ?></h1>
       <form action="<?= APP_URL . '/products/' . $product->id ?>" method="POST">
         <input type="hidden" name="_method" value="PUT">
         <div class="mb-3">

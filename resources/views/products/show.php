@@ -20,9 +20,9 @@
   <main>
     <section class="container">
       <h1><?= $product->name ?></h1>
-      <p>ID: <?= $product->id ?></p>
-      <p>PRICE: <?= $product->price ?></p>
-      <p>ESTOQUE: <?= $product->stock ?></p>
+      <p><strong># <?= $product->id ?></strong></p>
+      <p><strong>PREÇO: </strong><?= $product->price ?></p>
+      <p><strong>ESTOQUE: </strong><?= $product->stock ?></p>
       <a class="btn btn-success" href="<?= APP_URL . '/products' ?>">Voltar</a>
     </section>
   </main>

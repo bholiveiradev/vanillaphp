@@ -31,7 +31,7 @@ class Bootstrap
             }
         }
 
-        throw new Exception('Route not found', 404);
+        throw new Exception('Route not found', Response::HTTP_NOT_FOUND);
     }
 
     private static function instantiateMiddleware(string $middleware): MiddlewareInterface
@@ -39,7 +39,7 @@ class Bootstrap
         $middlewareObject = new $middleware();
 
         if (!$middlewareObject instanceof MiddlewareInterface) {
-            throw new Exception("{$middleware} must implement MiddlewareInterface");
+            throw new Exception("[{$middleware}] must implement MiddlewareInterface", Response::HTTP_NOT_IMPLEMENTED);
         }
 
         return $middlewareObject;
@@ -54,7 +54,7 @@ class Bootstrap
     private static function extractParamsFromUri(Request $request, array $route): array
     {
         $pathRegex = self::replacePathToRegex($route['uri']);
-        
+
         preg_match($pathRegex, $request->getUri(), $matches);
         array_shift($matches);
 
@@ -81,12 +81,13 @@ class Bootstrap
                 return call_user_func([new $handler(), 'handle'], $request, $response, $params);
             }
 
-            throw new Exception('Not Implemented', 501);
+            throw new Exception('Not Implemented', Response::HTTP_NOT_IMPLEMENTED);
         };
     }
 
     private static function replacePathToRegex(string $path): string
     {
-        return '#^' . preg_replace('#\{([\w]+)\}#', '(?P<$1>[^/]+)', $path) . '$#';
+        $replace = preg_replace('#\{([\w]+)\}#', '(?P<$1>[^/]+)', $path);
+        return "#^{$replace}$#";
     }
 }

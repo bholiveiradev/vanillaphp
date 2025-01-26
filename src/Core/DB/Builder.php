@@ -6,28 +6,14 @@ namespace App\Core\DB;
 
 class Builder
 {
-    private string $table;
-    private string $select;
-    private string $where;
-    private string $orderBy;
-    private string $limit;
-    private array $bindings;
-
     public function __construct(
-        string $table,
-        string $select = '*',
-        string $where = '',
-        string $orderBy = '',
-        string $limit = '',
-        array $bindings = []
-    ) {
-        $this->table = $table;
-        $this->select = $select;
-        $this->where = $where;
-        $this->orderBy = $orderBy;
-        $this->limit = $limit;
-        $this->bindings = $bindings;
-    }
+        private string $table,
+        private string $select = '*',
+        private string $where = '',
+        private string $orderBy = '',
+        private string $limit = '',
+        private array  $bindings = []
+    ) {}
 
     public static function table(string $table): self
     {
@@ -64,15 +50,15 @@ class Builder
     public function get(): array
     {
         $sql = "SELECT {$this->select} FROM {$this->table}";
-        
+
         if (!empty($this->where)) {
             $sql .= " {$this->where}";
         }
-        
+
         if (!empty($this->orderBy)) {
             $sql .= " {$this->orderBy}";
         }
-        
+
         if (!empty($this->limit)) {
             $sql .= " {$this->limit}";
         }

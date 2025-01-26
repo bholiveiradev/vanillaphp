@@ -21,8 +21,7 @@ if (! function_exists('back')) {
     }
 }
 
-if (! function_exists('has_flash')) 
-{
+if (! function_exists('has_flash')) {
     function has_flash(string $key): bool
     {
         return Session::has('__flash')
@@ -49,9 +48,20 @@ if (! function_exists('view')) {
     }
 }
 
-if (!function_exists('app_path')) {
-    function app_path($path = '')
+if (! function_exists('app_path')) {
+    function app_path(string $path = '')
     {
         return __DIR__ . '/' . ltrim($path, '/');
+    }
+}
+
+if (! function_exists('env')) {
+    function env(string $variable, ?string $default = null)
+    {
+        if (isset($_ENV[$variable])) {
+            return $_ENV[$variable];
+        }
+
+        return $default;
     }
 }

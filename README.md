@@ -89,7 +89,7 @@ Certifique-se de ter instalado os seguintes itens antes de começar:
 
 define('APP_URL',   'http://localhost:8000');
 define('ROOT_PATH', realpath(__DIR__ . '/..'));
-define('APP_PATH',  ROOT_PATH . '/app');
+define('APP_PATH',  ROOT_PATH . '/src');
 define('VIEW_PATH', ROOT_PATH . '/resources/views');
 
 define('DB_HOST',    'db');
