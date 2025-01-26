@@ -58,10 +58,6 @@ if (! function_exists('app_path')) {
 if (! function_exists('env')) {
     function env(string $variable, ?string $default = null)
     {
-        if (isset($_ENV[$variable])) {
-            return $_ENV[$variable];
-        }
-
-        return $default;
+        return $_ENV[$variable] ?? $default;
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support;
 
-use App\Support\Contracts\SessionInterface;
-
 class Session
 {
     public static function set(string $key, mixed $value): void
