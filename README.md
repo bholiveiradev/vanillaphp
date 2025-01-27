@@ -1,10 +1,11 @@
-# VanillaPHP Framework 🚀
+# Simply PHP Framework 🚀
 
 Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade, sem dependências de bibliotecas externas. O objetivo principal é proporcionar uma compreensão aprofundada sobre o funcionamento interno de frameworks populares de mercado.
 
 É altamente recomendado para estudos, mas também pode ser utilizado em projetos comerciais.
 
 ## Estrutura do Projeto 🏗️
+
 ```plaintext
 /
 |-- config/
@@ -60,6 +61,7 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |-- tests/
 |   |-- Feature/
 |   |-- Unit/
+|-- .env.example
 |-- .gitignore
 |-- composer.json
 |-- docker-compose.yml
@@ -83,23 +85,25 @@ Certifique-se de ter instalado os seguintes itens antes de começar:
 
 ## Exemplos e Demonstração 🌐
 
-### Exemplo de Configuração (app/config/app.php)
-```php
-<?php
+### Exemplo de Configuração (.env)
 
-define('APP_URL',   'http://localhost:8000');
-define('ROOT_PATH', realpath(__DIR__ . '/..'));
-define('APP_PATH',  ROOT_PATH . '/src');
-define('VIEW_PATH', ROOT_PATH . '/resources/views');
+Copiar e colar o arquivo ".env.example" para ".env" e configurar as variáveis.
 
-define('DB_HOST',    'db');
-define('DB_NAME',    'php-mvc');
-define('DB_USER',    'admin');
-define('DB_PASS',    'password');
-define('DB_CHARSET', 'utf8');
+```sh
+#[Application]
+APP_URL=http://localhost:8000
+# MAINTENANCE=true
+
+#[Database]
+DB_HOST=db
+DB_NAME=forgedb
+DB_USER=admin
+DB_PASS=secret
+DB_CHARSET=utf8
 ```
 
 ### Exemplo de Modelo (src/Models/Product.php)
+
 ```php
 <?php
 
@@ -146,7 +150,9 @@ class Product extends Model
     }
 }
 ```
+
 ### Exemplo de Controller (src/Http/Controllers/ProductController.php)
+
 ```php
 <?php
 
@@ -219,6 +225,7 @@ class ProductController extends Controller
 }
 ```
 ### Exemplo de Middleware (src/Http/Middlewares/ExampleMiddleware.php)
+
 ```php
 <?php
 
@@ -243,6 +250,7 @@ class ExampleMiddleware implements MiddlewareInterface
 ```
 
 ### Rotas de Exemplo (routes/routes.php)
+
 ```php
 <?php
 
