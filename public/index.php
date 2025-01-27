@@ -15,6 +15,11 @@ $dotenv->load();
 
 require_once __DIR__ . '/../config/config.php';
 
+if (env('MAINTENANCE', false)) {
+    require_once VIEW_PATH . '/maintenance/index.php';
+    return;
+}
+
 Redis::register();
 
 $whoops = new Whoops();
