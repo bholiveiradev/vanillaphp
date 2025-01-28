@@ -10,7 +10,7 @@ use App\Models\Product;
 class ProductService
 {
     use Cache;
-    
+
     public static function productsCache(): mixed
     {
         self::cacheInit();

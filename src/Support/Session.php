@@ -13,7 +13,7 @@ class Session
 
     public static function has(string $key): bool
     {
-        return isset($_SESSION[$key]);    
+        return isset($_SESSION[$key]);
     }
 
     public static function get(string $key): ?array

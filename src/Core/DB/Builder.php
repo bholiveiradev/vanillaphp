@@ -13,7 +13,8 @@ class Builder
         private string $orderBy = '',
         private string $limit = '',
         private array  $bindings = []
-    ) {}
+    ) {
+    }
 
     public static function table(string $table): self
     {

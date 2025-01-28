@@ -14,7 +14,7 @@ class ProductTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->model = new Product;
+        $this->model = new Product();
     }
 
     /**
@@ -26,14 +26,14 @@ class ProductTest extends TestCase
         $reflectionClass = new ReflectionClass($this->model);
         $reflectionProperty = $reflectionClass->getProperty('table');
         $reflectionProperty->setAccessible(true);
-        
+
         // Act
         $table = $reflectionProperty->getValue($this->model);
 
         // Arrange
         $this->assertEquals('products', $table);
     }
-    
+
     /**
      * @test
      */

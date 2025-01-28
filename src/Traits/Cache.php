@@ -8,7 +8,7 @@ use App\Support\CacheRedis;
 use Predis\Client;
 
 trait Cache
-{    
+{
     private static CacheRedis $cache;
 
     public static function cacheInit()

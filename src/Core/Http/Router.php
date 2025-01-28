@@ -41,7 +41,7 @@ class Router
     public static function middlewares(array $middlewares = []): self
     {
         self::addMiddlewares($middlewares);
-        return new static;
+        return new static();
     }
 
     public static function get(string $path, mixed $handler, array $middlewares = []): void

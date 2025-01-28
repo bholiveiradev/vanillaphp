@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use Mockery;
 use PHPUnit\Framework\TestCase;
-use \stdClass;
+use stdClass;
 
 class ExampleUnitTest extends TestCase
 {

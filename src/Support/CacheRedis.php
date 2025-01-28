@@ -8,7 +8,7 @@ use App\Support\Contracts\CacheInterface;
 use Predis\Client;
 
 class CacheRedis implements CacheInterface
-{    
+{
     public function __construct(public Client $client)
     {
     }

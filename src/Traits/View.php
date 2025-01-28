@@ -10,6 +10,6 @@ trait View
 {
     public function render(string $view, array $data = []): void
     {
-       ViewHtml::processRender($view, $data);
+        ViewHtml::processRender($view, $data);
     }
 }

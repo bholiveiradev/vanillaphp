@@ -18,10 +18,10 @@ Router::middlewares([ExampleMiddleware::class])
         Router::delete('/{id}', [ProductController::class, 'delete']);
     });
 
-    Router::group('/api', function () {
-        Router::get('/products', [ApiProductController::class, 'index']);
-        Router::post('/products', [ApiProductController::class, 'store']);
-        Router::get('/products/{id}', [ApiProductController::class, 'show']);
-        Router::put('/products/{id}', [ApiProductController::class, 'update']);
-        Router::delete('/products/{id}', [ApiProductController::class, 'delete']);
-    });
+Router::group('/api', function () {
+    Router::get('/products', [ApiProductController::class, 'index']);
+    Router::post('/products', [ApiProductController::class, 'store']);
+    Router::get('/products/{id}', [ApiProductController::class, 'show']);
+    Router::put('/products/{id}', [ApiProductController::class, 'update']);
+    Router::delete('/products/{id}', [ApiProductController::class, 'delete']);
+});
