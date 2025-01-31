@@ -6,13 +6,13 @@ namespace App\Core\DB;
 
 abstract class Model implements \JsonSerializable
 {
-    protected static string $table;
-    protected static array $attributes = [];
-    protected static string $primaryKey = 'id';
-    public static array $filled = [];
+    protected string $table;
+    protected array $attributes = [];
+    protected string $primaryKey = 'id';
+    public array $filled = [];
     private array $fields = [];
 
-    private static ?array $primary = null;
+    private ?array $primary = null;
 
     public function __construct(array $fields)
     {
@@ -29,19 +29,19 @@ abstract class Model implements \JsonSerializable
         $this->fields[$name] = $value;
     }
 
-    public static function fill(array $data): self
+    public function fill(array $data): self
     {
         $fields = [];
 
         foreach ($data as $key => $value) {
-            if (in_array($key, static::$attributes)) {
+            if (in_array($key, $this->attributes)) {
                 $fields[$key] = $value;
             }
         }
 
-        static::$filled = $fields;
+        $this->filled = $fields;
 
-        return new static($fields);
+        return $this;
     }
 
     public function toArray(): array
@@ -54,18 +54,18 @@ abstract class Model implements \JsonSerializable
         return $this->toArray();
     }
 
-    public static function find(string|int $id): self
+    public function find(string|int $id): self
     {
-        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->get()[0];
+        $result = Builder::table($this->table)->where($this->primaryKey, $id)->get()[0];
 
-        static::$primary[static::$primaryKey] = $result[static::$primaryKey];
+        $this->primary[$this->primaryKey] = $result[$this->primaryKey];
 
-        return new static($result);
+        return new $this($result);
     }
 
-    public static function all(string $orderColumn = 'id', string $order = 'ASC'): array
+    public function all(string $orderColumn = 'id', string $order = 'ASC'): array
     {
-        $result = Builder::table(static::$table)->orderBy($orderColumn, $order)->get();
+        $result = Builder::table($this->table)->orderBy($orderColumn, $order)->get();
 
         $items = array_map(function ($fields) {
             return new static($fields);
@@ -74,55 +74,55 @@ abstract class Model implements \JsonSerializable
         return $items;
     }
 
-    public static function onInsert()
+    public function onInsert()
     {
         // Lógica para evento de inserção, se necessário
     }
 
-    public static function insert(array $data = []): string|false
+    public function insert(array $data = []): string|false
     {
-        $fields = !empty($data) ? $data : static::$filled;
+        $fields = !empty($data) ? $data : $this->filled;
 
-        unset($fields[static::$primaryKey]);
+        unset($fields[$this->primaryKey]);
 
-        $result = Builder::table(static::$table)->insert($fields);
+        $result = Builder::table($this->table)->insert($fields);
 
-        static::onInsert();
+        $this->onInsert();
 
         return $result;
     }
 
-    public static function onUpdate()
+    public function onUpdate()
     {
         // Lógica para evento de atualização, se necessário
     }
 
-    public static function update(array $data = [], ?int $id = null): bool
+    public function update(array $data = [], string|int|null $id = null): bool
     {
-        static::fill($data);
+        $this->fill($data);
 
-        $fields = !empty($data) ? static::$filled : [];
-        $id = !is_null($id) ? $id : static::$primary[static::$primaryKey];
+        $fields = !empty($data) ? $this->filled : [];
+        $id = !is_null($id) ? $id : $this->primary[$this->primaryKey];
 
-        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->update($fields);
+        $result = Builder::table($this->table)->where($this->primaryKey, $id)->update($fields);
 
-        static::onUpdate();
+        $this->onUpdate();
 
         return $result;
     }
 
-    public static function onDelete()
+    public function onDelete()
     {
         // Lógica para evento de exclusão, se necessário
     }
 
-    public static function delete(?int $id = null): bool
+    public function delete(string|int|null $id = null): bool
     {
-        $id = !is_null($id) ? $id : static::$primary[static::$primaryKey];
+        $id = null !== $id ? $id : $this->primary[$this->primaryKey];
 
-        $result = Builder::table(static::$table)->where(static::$primaryKey, $id)->delete();
+        $result = Builder::table($this->table)->where($this->primaryKey, $id)->delete();
 
-        static::onDelete();
+        $this->onDelete();
 
         return $result;
     }

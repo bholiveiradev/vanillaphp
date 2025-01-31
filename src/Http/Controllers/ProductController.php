@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Core\Http\Request;
-use App\Models\Product;
-use App\Support\Session;
 use App\Services\ProductService;
 
 final class ProductController extends Controller
 {
+    public function __construct(
+        private ProductService $productService
+    ) {}
+
     public function index(): void
     {
-        $products = ProductService::productsCache();
+        $products = $this->productService->getFromCache();
 
         view('products/index', ['products' => $products]);
     }
@@ -25,44 +27,37 @@ final class ProductController extends Controller
 
     public function store(Request $request): void
     {
-        $data = $request::getInputs();
+        $data = $request->getInputs();
 
-        Product::fill($data)->insert();
-
-        Session::flash('success', 'O produto foi criado!');
+        $this->productService->save($data);
 
         redirect('/products');
     }
 
     public function show(Request $request): void
     {
-        $product = Product::find($request->id);
+        $product = $this->productService->findOne($request->id);
 
         view('products/show', ['product' => $product]);
     }
 
     public function edit(Request $request): void
     {
-        $product = Product::find($request->id);
+        $product = $this->productService->findOne($request->id);
 
         view('products/edit', ['product' => $product]);
     }
 
     public function update(Request $request): void
     {
-        $product = Product::find($request->id);
-
-        $product->update($request::getInputs(), $product->id);
-
-        Session::flash('success', 'O produto foi salvo!');
+        $this->productService->update($request->id, $request::getInputs());
 
         redirect('/products');
     }
 
     public function delete(Request $request): void
     {
-        $product = Product::find($request->id);
-        $product->delete();
+        $this->productService->remove($request->id);
 
         redirect('/products');
     }

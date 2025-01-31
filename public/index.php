@@ -26,6 +26,8 @@ $whoops = new Whoops();
 $whoops->pushHandler(new PrettyPageHandler());
 $whoops->register();
 
+require_once ROOT_PATH . '/bootstrap/app.php';
 require_once ROOT_PATH . '/routes/routes.php';
 
-Bootstrap::dispatch(Router::getRoutes(), new Request(), new Response());
+$bootstrap = new Bootstrap($container);
+$bootstrap->dispatch(Router::getRoutes(), new Request(), new Response());

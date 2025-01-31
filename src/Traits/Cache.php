@@ -9,11 +9,11 @@ use Predis\Client;
 
 trait Cache
 {
-    private static CacheRedis $cache;
+    private CacheRedis $cache;
 
-    public static function cacheInit()
+    public function cacheInit()
     {
-        self::$cache = new CacheRedis(
+        $this->cache = new CacheRedis(
             new Client([
                 'scheme' => 'tcp',
                 'host'   => 'redis',
@@ -22,20 +22,20 @@ trait Cache
         );
     }
 
-    public static function set(string $key, mixed $value): void
+    public function set(string $key, mixed $value): void
     {
-        self::$cache->set($key, $value);
+        $this->cache->set($key, $value);
     }
 
-    public static function get(string $key): mixed
+    public function get(string $key): mixed
     {
-        $cache = self::$cache->get($key);
+        $cache = $this->cache->get($key);
 
         return !empty($cache) ?: null;
     }
 
-    public static function forget(string $key): void
+    public function forget(string $key): void
     {
-        self::$cache->forget($key);
+        $this->cache->forget($key);
     }
 }

@@ -10,21 +10,27 @@ use Exception;
 
 class Bootstrap
 {
-    public static function dispatch(array $routes, Request $request, Response $response): mixed
+    private Container $container;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
+
+    public function dispatch(array $routes, Request $request, Response $response): mixed
     {
         foreach ($routes as $route) {
             if (self::isMatchingRoute($request, $route)) {
                 $params = self::extractParamsFromUri($request, $route);
                 $middlewares = array_reverse($route['middlewares']);
 
-                $next = self::runHandler($route, $request, $response, $params);
+                $next = function () use ($route, $request, $response, $params) {
+                    return $this->runHandler($route, $request, $response, $params);
+                };
 
                 foreach ($middlewares as $middleware) {
-                    $middleware = self::instantiateMiddleware($middleware);
-
-                    $next = function () use ($middleware, $request, $response, $next) {
-                        return $middleware->handle($request, $response, $next);
-                    };
+                    $middlewareInstance = $this->instantiateMiddleware($middleware);
+                    $next = fn() => $middlewareInstance->handle($request, $response, $next);
                 }
 
                 return $next();
@@ -36,13 +42,13 @@ class Bootstrap
 
     private static function instantiateMiddleware(string $middleware): MiddlewareInterface
     {
-        $middlewareObject = new $middleware();
+        $middlewareInstance = new $middleware();
 
-        if (!$middlewareObject instanceof MiddlewareInterface) {
+        if (!$middlewareInstance instanceof MiddlewareInterface) {
             throw new Exception("[{$middleware}] must implement MiddlewareInterface", Response::HTTP_NOT_IMPLEMENTED);
         }
 
-        return $middlewareObject;
+        return $middlewareInstance;
     }
 
     private static function isMatchingRoute(Request $request, array $route): bool
@@ -63,26 +69,26 @@ class Bootstrap
         return $matches;
     }
 
-    private static function runHandler(array $route, Request $request, Response $response, array $params): \Closure
+    private function runHandler(array $route, Request $request, Response $response, array $params): mixed
     {
-        return function () use ($route, $request, $response, $params) {
-            $handler = $route['handler'];
+        $handler = $route['handler'];
 
-            if ($handler instanceof \Closure || is_callable($handler)) {
-                return $handler($request, $response, $params);
-            }
+        if ($handler instanceof \Closure) {
+            return $handler($request, $response, $params);
+        }
 
-            if (is_array($handler)) {
-                [$controller, $method] = $handler;
-                return call_user_func([new $controller(), $method], $request, $response, $params);
-            }
+        if (is_array($handler)) {
+            [$controller, $method] = $handler;
+            $controllerInstance = $this->container->resolve($controller);
 
-            if (class_exists($handler)) {
-                return call_user_func([new $handler(), 'handle'], $request, $response, $params);
-            }
+            return call_user_func([$controllerInstance, $method], $request, $response, $params);
+        }
 
-            throw new Exception('Not Implemented', Response::HTTP_NOT_IMPLEMENTED);
-        };
+        if (class_exists($handler)) {
+            return call_user_func([$this->container->resolve($handler), 'handle'], $request, $response, $params);
+        }
+
+        throw new Exception('Not Implemented', Response::HTTP_NOT_IMPLEMENTED);
     }
 
     private static function replacePathToRegex(string $path): string
