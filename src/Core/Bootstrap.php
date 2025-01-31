@@ -20,8 +20,8 @@ class Bootstrap
     public function dispatch(array $routes, Request $request, Response $response): mixed
     {
         foreach ($routes as $route) {
-            if (self::isMatchingRoute($request, $route)) {
-                $params = self::extractParamsFromUri($request, $route);
+            if ($this->isMatchingRoute($request, $route)) {
+                $params = $this->extractParamsFromUri($request, $route);
                 $middlewares = array_reverse($route['middlewares']);
 
                 $next = function () use ($route, $request, $response, $params) {
@@ -40,7 +40,7 @@ class Bootstrap
         throw new Exception('Route not found', Response::HTTP_NOT_FOUND);
     }
 
-    private static function instantiateMiddleware(string $middleware): MiddlewareInterface
+    private function instantiateMiddleware(string $middleware): MiddlewareInterface
     {
         $middlewareInstance = new $middleware();
 
@@ -51,15 +51,15 @@ class Bootstrap
         return $middlewareInstance;
     }
 
-    private static function isMatchingRoute(Request $request, array $route): bool
+    private function isMatchingRoute(Request $request, array $route): bool
     {
         return $request->getMethod() === $route['method'] &&
-            preg_match(self::replacePathToRegex($route['uri']), $request->getUri());
+            preg_match($this->replacePathToRegex($route['uri']), $request->getUri());
     }
 
-    private static function extractParamsFromUri(Request $request, array $route): array
+    private function extractParamsFromUri(Request $request, array $route): array
     {
-        $pathRegex = self::replacePathToRegex($route['uri']);
+        $pathRegex = $this->replacePathToRegex($route['uri']);
 
         preg_match($pathRegex, $request->getUri(), $matches);
         array_shift($matches);
@@ -91,7 +91,7 @@ class Bootstrap
         throw new Exception('Not Implemented', Response::HTTP_NOT_IMPLEMENTED);
     }
 
-    private static function replacePathToRegex(string $path): string
+    private function replacePathToRegex(string $path): string
     {
         $replace = preg_replace('#\{([\w]+)\}#', '(?P<$1>[^/]+)', $path);
         return "#^{$replace}$#";
