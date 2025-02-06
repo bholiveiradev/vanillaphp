@@ -118,34 +118,34 @@ class Product extends Model
 {
     use Cache;
 
-    protected static string $table = 'products';
-    protected static array $attributes = ['name', 'price', 'stock'];
+    protected string $table = 'products';
+    protected array $attributes = ['name', 'price', 'stock'];
 
     public function __construct(array $fields = [])
     {
         parent::__construct(fields: $fields);
 
-        self::cacheInit();
+        $this->cacheInit();
     }
 
-    public static function onInsert()
+    public function onInsert()
     {
-        if (self::$cache->get('product-list')) {
-            self::$cache->forget('product-list');
+        if ($this->cache->get('product-list')) {
+            $this->cache->forget('product-list');
         }
     }
 
-    public static function onUpdate()
+    public function onUpdate()
     {
-        if (self::$cache->get('product-list')) {
-            self::$cache->forget('product-list');
+        if ($this->cache->get('product-list')) {
+            $this->cache->forget('product-list');
         }
     }
 
-    public static function onDelete()
+    public function onDelete()
     {
-        if (self::$cache->get('product-list')) {
-            self::$cache->forget('product-list');
+        if ($this->cache->get('product-list')) {
+            $this->cache->forget('product-list');
         }
     }
 }
@@ -161,15 +161,17 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Core\Http\Request;
-use App\Models\Product;
-use App\Support\Session;
 use App\Services\ProductService;
 
-class ProductController extends Controller
+final class ProductController extends Controller
 {
+    public function __construct(
+        private ProductService $productService
+    ) {}
+
     public function index(): void
     {
-        $products = ProductService::productsCache();
+        $products = $this->productService->getFromCache();
 
         view('products/index', ['products' => $products]);
     }
@@ -181,44 +183,37 @@ class ProductController extends Controller
 
     public function store(Request $request): void
     {
-        $data = $request::getInputs();
+        $data = $request->getInputs();
 
-        Product::fill($data)->insert();
-
-        Session::flash('success', 'O produto foi criado!');
+        $this->productService->save($data);
 
         redirect('/products');
     }
 
     public function show(Request $request): void
     {
-        $product = Product::find($request->id);
+        $product = $this->productService->findOne($request->id);
 
-        view('products/show', $product->toArray());
+        view('products/show', ['product' => $product]);
     }
 
     public function edit(Request $request): void
     {
-        $product = Product::find($request->id);
+        $product = $this->productService->findOne($request->id);
 
         view('products/edit', ['product' => $product]);
     }
 
     public function update(Request $request): void
     {
-        $product = Product::find($request->id);
-
-        $product->update($request::getInputs(), $product->id);
-
-        Session::flash('success', 'O produto foi salvo!');
+        $this->productService->update($request->id, $request::getInputs());
 
         redirect('/products');
     }
 
     public function delete(Request $request): void
     {
-        $product = Product::find($request->id);
-        $product->delete();
+        $this->productService->remove($request->id);
 
         redirect('/products');
     }
@@ -236,15 +231,15 @@ namespace App\Http\Middlewares;
 use App\Core\Http\Request;
 use App\Core\Http\Response;
 use App\Http\Middlewares\Contracts\MiddlewareInterface;
-use \Closure;
+use Closure;
 
 class ExampleMiddleware implements MiddlewareInterface
 {
     public function handle(Request $request, Response $response, Closure $next): void
     {
-        // Faça algo antes do request passar pelo middleware seguinte
+        // Faça algo antes do próximo middleware
         $next();
-        // Faça algo depois do request passar pelo middleware seguinte
+        // Faça algo depois do próximo middleware
     }
 }
 ```
@@ -255,6 +250,7 @@ class ExampleMiddleware implements MiddlewareInterface
 <?php
 
 use App\Core\Http\Router;
+use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\ProductController;
 use App\Http\Middlewares\ExampleMiddleware;
 
@@ -270,6 +266,14 @@ Router::middlewares([ExampleMiddleware::class])
         Router::put('/{id}', [ProductController::class, 'update']);
         Router::delete('/{id}', [ProductController::class, 'delete']);
     });
+
+Router::group('/api', function () {
+    Router::get('/products', [ApiProductController::class, 'index']);
+    Router::post('/products', [ApiProductController::class, 'store']);
+    Router::get('/products/{id}', [ApiProductController::class, 'show']);
+    Router::put('/products/{id}', [ApiProductController::class, 'update']);
+    Router::delete('/products/{id}', [ApiProductController::class, 'delete']);
+});
 ```
 
 ## Contribuições e Suporte 🤝
