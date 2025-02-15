@@ -7,10 +7,10 @@ namespace App\Core\DB;
 abstract class Model implements \JsonSerializable
 {
     protected string $table;
-    protected array $attributes = [];
+    protected array  $attributes = [];
     protected string $primaryKey = 'id';
-    public array $filled = [];
-    private array $fields = [];
+    public    array  $filled = [];
+    private   array  $fields = [];
 
     private ?array $primary = null;
 

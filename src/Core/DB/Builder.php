@@ -13,8 +13,8 @@ class Builder
         private string $orderBy = '',
         private string $limit = '',
         private array  $bindings = []
-    ) {
-    }
+    )
+    {}
 
     public static function table(string $table): self
     {
@@ -28,7 +28,7 @@ class Builder
 
     public function where(string $field, string|int $value, string $operator = '='): self
     {
-        $where = empty($this->where) ? "WHERE {$field} {$operator} ?" : $this->where . " AND {$field} {$operator} ?";
+        $where = empty($this->where) ? "WHERE {$field} {$operator} ?" : "{$this->where} AND {$field} {$operator} ?";
         $bindings = array_merge($this->bindings, [$value]);
 
         return $this->newInstance($this->table, $this->select, $where, $this->orderBy, $this->limit, $bindings);
@@ -52,15 +52,15 @@ class Builder
     {
         $sql = "SELECT {$this->select} FROM {$this->table}";
 
-        if (!empty($this->where)) {
+        if (! empty($this->where)) {
             $sql .= " {$this->where}";
         }
 
-        if (!empty($this->orderBy)) {
+        if (! empty($this->orderBy)) {
             $sql .= " {$this->orderBy}";
         }
 
-        if (!empty($this->limit)) {
+        if (! empty($this->limit)) {
             $sql .= " {$this->limit}";
         }
 
@@ -85,14 +85,10 @@ class Builder
         $values = implode(', ', array_fill(0, count($data), '?'));
 
         $sql = "INSERT INTO {$this->table} ({$fields}) VALUES ({$values})";
-
         $stmt = DB::pdo()->prepare($sql);
-
         $stmt->execute(array_values($data));
 
-        $lastInsertId = DB::pdo()->lastInsertId();
-
-        return $lastInsertId;
+        return DB::pdo()->lastInsertId();
     }
 
     public function update(array $data): bool
@@ -102,21 +98,17 @@ class Builder
         }, array_keys($data));
 
         $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " {$this->where}";
-
         $stmt = DB::pdo()->prepare($sql);
-        $result = $stmt->execute(array_merge(array_values($data), $this->bindings));
-
-        return $result;
+        
+        return $stmt->execute(array_merge(array_values($data), $this->bindings));
     }
 
     public function delete(): bool
     {
         $sql = "DELETE FROM {$this->table} {$this->where}";
-
         $stmt = DB::pdo()->prepare($sql);
-        $result = $stmt->execute($this->bindings);
-
-        return $result;
+        
+        return $stmt->execute($this->bindings);
     }
 
     private function newInstance(string $table, string $select, string $where, string $orderBy, string $limit, array $bindings): self

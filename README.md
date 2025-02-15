@@ -8,8 +8,12 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 
 ```plaintext
 /
+|-- bootstrap/
+|   |-- app.php
 |-- config/
 |   |-- app.php
+|   |-- config.php
+|   |-- database.php
 |-- docker/
 |   |-- data/
 |   |   |-- cache/
@@ -28,9 +32,9 @@ Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade
 |   |   |-- Http/
 |   |   |   |-- Request.php
 |   |   |   |-- Response.php
-|   |   |   |-- RouteDesptacher.php
 |   |   |   |-- Router.php
 |   |   |-- Bootstrap.php
+|   |   |-- Container.php
 |   |-- Http/
 |   |   |-- Controllers/
 |   |   |   |-- Controller.php
