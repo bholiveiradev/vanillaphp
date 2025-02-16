@@ -1,4 +1,4 @@
-# Simply PHP Framework 🚀
+# SimplePHP Framework 🚀
 
 Um microframework MVC desenvolvido em PHP com foco na performance e simplicidade, sem dependências de bibliotecas externas. O objetivo principal é proporcionar uma compreensão aprofundada sobre o funcionamento interno de frameworks populares de mercado.
 
